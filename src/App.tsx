@@ -1,26 +1,79 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { useQuery, gql } from "@apollo/client";
+import Characters from "./components/Characters";
+import { Container } from "@mui/material";
+import Button from "@mui/material/Button";
+import { store } from "./redux/";
+import { Provider } from "react-redux";
+const RICK_QUERY = gql`
+  {
+    characters(page: 1) {
+      info {
+        count
+        next
+      }
+      results {
+        id
+        name
+        status
 
-function App() {
+        image
+        location {
+          name
+        }
+        species
+      }
+    }
+  }
+`;
+
+//TODO
+// add redux first
+// one global state that contains the selscted card
+// and show that card in the bottom of page
+export default function App() {
+  const [page, setPage] = useState(1);
+
+  const changPage = (action: string) => {
+    switch (action) {
+      case "pre":
+        if (page === 1) break;
+        setPage((state) => state - 1);
+        break;
+      case "next":
+        setPage((state) => state + 1);
+
+        break;
+
+      default:
+        break;
+    }
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Provider store={store}>
+      <Container sx={{ width: "100vw", height: "100vh" }}>
+        <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
+          Rick and morty
+        </h1>
+        <Characters page={page} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: "5px",
+            padding: "15px 5px",
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <Button variant="contained" onClick={() => changPage("pre")}>
+            pre
+          </Button>
+          <p>{page}</p>
+          <Button variant="contained" onClick={() => changPage("next")}>
+            next
+          </Button>
+        </div>
+      </Container>
+    </Provider>
   );
 }
-
-export default App;
